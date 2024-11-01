@@ -3,19 +3,24 @@ from pydub import AudioSegment
 import os
 import uuid
 import speech_recognition as sr
-from moviepy.editor import VideoFileClip
-from pydub.utils import mediainfo
 
 from django.conf import settings
 
 
-def create_urls_and_routers(cls, dynamic='/'):
+def create_urls_and_routers(cls):
     cls = cls()
-    return [
-        path(f'{fu_name}{dynamic}', getattr(cls, fu_name))
-        for fu_name in dir(cls)
-        if callable(getattr(cls, fu_name)) and not fu_name.startswith('_')
-    ]
+    urls = []
+    search_by = '_'
+
+    for method in dir(cls):
+        if not method.startswith(search_by) and callable(getattr(cls, method)):
+            route = method + '/'
+            if search_by in method:
+                route = route + f'<int:{method.split('_')[-1]}>'
+
+            urls.append(path(route, getattr(cls, method)))
+
+    return urls
 
 
 def upload_file(file):
@@ -33,13 +38,6 @@ def upload_file(file):
         'size': file.size,
         'path': f'{settings.UPLOAD_DIR}/{file_name + file_destination[1]}'
     }
-
-
-def get_audio_from_video(video_path):
-    video = VideoFileClip(video_path)
-    audio_path = "audio.wav"
-    video.audio.write_audiofile(audio_path)
-    return audio_path
 
 
 def text_audio(file_path):

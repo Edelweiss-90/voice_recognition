@@ -8,7 +8,13 @@ from django.contrib.auth import (
     logout as auth_logout
 )
 
-from tools import BaseViews, user_validator
+from tools import (
+    BaseViews,
+    user_validator,
+    handle_validation_errors,
+    NotFoundException,
+    AlreadyExistException
+    )
 
 
 class UserViews(BaseViews):
@@ -21,29 +27,29 @@ class UserViews(BaseViews):
         return cls._instance
 
     @method_decorator(require_POST)
+    @handle_validation_errors
     @user_validator
     def create(self, request):
         user = self._loads_data(request)
 
         if UserViews.__model.objects.filter(username=user['username']).exists():
-            return self._response_error(
-                'User with this name already exists!'
-                )
+            raise AlreadyExistException()
 
         user = UserViews.__model.objects.create_user(**user)
         return self._response_success(f'user created with id: {user.id}')
 
     @method_decorator(require_POST)
+    @handle_validation_errors
     @user_validator
     def login(self, request):
         user = self._loads_data(request)
         auth = authenticate(**user)
 
-        if auth is not None:
-            auth_login(request, auth)
-            return self._response_success('login')
+        if auth is None:
+            raise NotFoundException()
 
-        return self._response_error('user not found')
+        auth_login(request, auth)
+        return self._response_success('login')
 
     @method_decorator(require_POST)
     @method_decorator(login_required)

@@ -12,6 +12,7 @@ pillow==11.0.0
 proglog==0.1.10
 psycopg2==2.9.10
 pydub==0.25.1
+python-dotenv==1.0.1
 requests==2.32.3
 setuptools==75.3.0
 SpeechRecognition==3.11.0
