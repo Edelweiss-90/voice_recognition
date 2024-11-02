@@ -63,6 +63,17 @@ def id_validator(func):
     return wrapper
 
 
+def id_params_validator(func):
+    def wrapper(self, request):
+        id = self._loads_data(request).get('id')
+        if id and type(id) is int:
+            return func(self, request)
+
+        raise InvalidIdException()
+
+    return wrapper
+
+
 def file_validation(func):
     def wrapper(self, request):
         file = request.FILES.get('file')

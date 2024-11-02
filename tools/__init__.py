@@ -4,6 +4,7 @@ from .constants import DeletedStatuses, MemorySizes
 from .validators import (
     user_validator,
     id_validator,
+    id_params_validator,
     file_validation,
     recognize_param_validator
 )

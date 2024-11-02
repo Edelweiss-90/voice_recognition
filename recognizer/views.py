@@ -1,15 +1,18 @@
 from django.views.decorators.http import require_GET, require_POST
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 from models import Recognizer, File
 from tools import (
     BaseViews,
     text_audio,
     id_validator,
+    id_params_validator,
     NotFoundException,
     handle_validation_errors,
-    recognize_param_validator
+    recognize_param_validator,
+    DeletedStatuses,
     )
 
 
@@ -56,12 +59,12 @@ class RecognizerViews(BaseViews):
     @handle_validation_errors
     @id_validator
     def recognize_id(self, request, id):
-        record = self.__model.objects.filter(
-            id=id, user_id=request.user.id
-        ).exists()
+        params = {
+            'id': id,
+            'user_id': request.user.id
+        }
 
-        if not record:
-            raise NotFoundException()
+        self._check_exist(self.__file, params)
 
         record = self.__model.objects.get(
             id=id, user_id=request.user.id
@@ -77,12 +80,12 @@ class RecognizerViews(BaseViews):
     @handle_validation_errors
     @id_validator
     def list_by_file_id(self, request, id):
-        file = self.__file.objects.filter(
-            id=id, user_id=request.user.id
-        ).exists()
+        params = {
+            'id': id,
+            'user_id': request.user.id
+        }
 
-        if not file:
-            raise NotFoundException()
+        self._check_exist(self.__file, params)
 
         records = self.__model.objects.filter(
             file_id=id
@@ -92,3 +95,25 @@ class RecognizerViews(BaseViews):
                                         {'id': item.id, 'text': item.text}
                                         for item in records
                                     ])
+
+    @method_decorator(require_POST)
+    @method_decorator(login_required)
+    @handle_validation_errors
+    @id_params_validator
+    @transaction.atomic
+    def delete(self, request):
+        params = {
+            'id': self._loads_data(request)['id'],
+            'user_id': request.user.id
+        }
+
+        self._check_exist(self.__model, params)
+
+        self.__model.objects.filter(
+            deleted=DeletedStatuses.NOT_DELETED.value,
+            **params
+        ).update(
+            deleted=DeletedStatuses.PERMANENTLY_DELETED.value,
+        )
+
+        return self._response_success(True)
