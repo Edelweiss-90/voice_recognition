@@ -23,7 +23,7 @@ UPLOAD_DIR = config['UPLOAD_DIR']
 
 TMP_WAV = config['TMP_WAV']
 
-EXTENSIONS = ('.mp3', '.mp4', '.m4a')
+EXTENSIONS = ('.mp3', '.m4a')
 
 LANGUAGE = ('ru-RU', 'en-EN')
 

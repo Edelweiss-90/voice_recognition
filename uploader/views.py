@@ -32,6 +32,7 @@ class UploaderViews(BaseViews):
     @file_validation
     def upload(self, request):
         file = request.FILES.get('file')
+
         file_data = upload_file(file)
         self.__model.objects.create(user_id=request.user.id, **file_data)
 
