@@ -7,13 +7,14 @@ from .exceptions import (
     EmptyFileException,
     FileSizeExceededException,
     UnsupportedFormatException,
-    InvalidIdException
+    InvalidDataException,
     )
 
 
 def check_req_user_data(data):
-    length = 12
-    return type(data) is not str and data == '' or len(data) > length
+    max_length = 12
+    min_length = 3
+    return type(data) is not str or len(data) > max_length or len(data) < min_length
 
 
 def user_validator(func):
@@ -24,10 +25,10 @@ def user_validator(func):
         password = valid_data['password']
 
         if check_req_user_data(username):
-            raise InvalidIdException()
+            raise InvalidDataException()
 
         if check_req_user_data(password):
-            raise InvalidIdException()
+            raise InvalidDataException()
 
         return func(self, request)
 
@@ -39,9 +40,13 @@ def recognize_param_validator(func):
         valid_data = self._loads_data(request)
 
         file_id = valid_data['file_id']
+        language = valid_data['language']
 
         if file_id is None or not isinstance(file_id, int):
             raise InvalidIdException()
+
+        if language not in settings.LANGUAGE:
+            raise InvalidDataException()
 
         return func(self, request)
 

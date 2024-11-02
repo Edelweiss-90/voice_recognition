@@ -28,25 +28,23 @@ class RecognizerViews(BaseViews):
     @handle_validation_errors
     @recognize_param_validator
     def recognize(self, request):
-        file_id = self._loads_data(request)['file_id']
-        
+        params = self._loads_data(request)
+
         file = self.__file.objects.filter(
-            id=file_id, user_id=request.user.id
+            id=params['file_id'], user_id=request.user.id
         ).exists()
 
         if not file:
             raise NotFoundException()
 
-        file = self.__file.objects.get(id=file_id)
-        text = text_audio(file.path)
-        print(file_id, text, request.user.id)
-        
+        file = self.__file.objects.get(id=params['file_id'])
+        text = text_audio(file.path, params['language'])
+
         data = self.__model.objects.create(
-            file_id=file_id,
+            file_id=params['file_id'],
             text=text,
             user_id=request.user.id,
         )
-        print(5)
 
         return self._response_success({
             'id': data.id,

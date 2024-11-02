@@ -3,11 +3,13 @@ from pydub import AudioSegment
 import os
 import uuid
 import speech_recognition as sr
+from django.core.files.uploadedfile import UploadedFile
+from typing import Type
 
 from django.conf import settings
 
 
-def create_urls_and_routers(cls):
+def create_urls_and_routers(cls: Type):
     cls = cls()
     urls = []
     search_by = '_'
@@ -18,12 +20,12 @@ def create_urls_and_routers(cls):
             if search_by in method:
                 route = route + f'<int:{method.split('_')[-1]}>'
 
-            urls.append(path(route, getattr(cls, method)))
+            urls.append(path(route, getattr(cls, method), name=method))
 
     return urls
 
 
-def upload_file(file):
+def upload_file(file: UploadedFile):
     file_destination = os.path.splitext(file.name)
     file_name = f'{uuid.uuid4()}_{file_destination[0]}'
     with open(
@@ -40,7 +42,7 @@ def upload_file(file):
     }
 
 
-def text_audio(file_path):
+def text_audio(file_path: str, language: str):
     audio_path = f'{settings.BASE_DIR}/{file_path}'
     tmp_audio_name = 'tmp_audio.wav'
     wav_path = f'{settings.BASE_DIR}/{settings.UPLOAD_DIR}/{settings.TMP_WAV}'
@@ -66,7 +68,7 @@ def text_audio(file_path):
             print(f"Recognizing chunk {i + 1}/{len(audio_chunks)}...")
             audio = recognizer.record(source)
             try:
-                text = recognizer.recognize_google(audio, language="ru-RU")
+                text = recognizer.recognize_google(audio, language=language)
                 full_text += text + " "
             except sr.UnknownValueError:
                 print(f"Unable to recognize speech in chunk {i + 1}")

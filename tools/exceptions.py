@@ -50,17 +50,18 @@ class FileSizeExceededException(Exception):
         super().__init__(self.message)
 
 
-def handle_validation_errors(view_func):
+def handle_validation_errors(func):
     def wrapper(*args, **kwargs):
         try:
-            return view_func(*args, **kwargs)
+            return func(*args, **kwargs)
         except (
             NotFoundException,
             InvalidDataException,
             InvalidIdException,
             EmptyFileException,
             UnsupportedFormatException,
-            FileSizeExceededException
+            FileSizeExceededException,
+            AlreadyExistException
         ) as e:
-            return JsonResponse({"error": e.message}, e.status)
+            return JsonResponse({"error": e.message}, status=e.status)
     return wrapper

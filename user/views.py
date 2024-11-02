@@ -32,7 +32,9 @@ class UserViews(BaseViews):
     def create(self, request):
         user = self._loads_data(request)
 
-        if UserViews.__model.objects.filter(username=user['username']).exists():
+        if UserViews.__model.objects.filter(
+            username=user['username']
+        ).exists():
             raise AlreadyExistException()
 
         user = UserViews.__model.objects.create_user(**user)

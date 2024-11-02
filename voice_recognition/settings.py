@@ -25,7 +25,12 @@ TMP_WAV = config['TMP_WAV']
 
 EXTENSIONS = ('.mp3', '.mp4', '.m4a')
 
+LANGUAGE = ('ru-RU', 'en-EN')
+
 MAX_FILE_SIZE_IN_MB = 10
+
+# 30m
+SESSION_COOKIE_AGE = 1800
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/

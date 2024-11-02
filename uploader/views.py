@@ -30,7 +30,6 @@ class UploaderViews(BaseViews):
     def upload(self, request):
         file = request.FILES.get('file')
         file_data = upload_file(file)
-        print(file_data)
         self.__model.objects.create(user_id=request.user.id, **file_data)
 
         return self._response_success('upload')
