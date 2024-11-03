@@ -39,13 +39,15 @@ def recognize_param_validator(func):
     def wrapper(self, request):
         valid_data = self._loads_data(request)
 
-        file_id = valid_data['file_id']
-        language = valid_data['language']
+        key_id = 'file_id'
+        key_language = 'language'
 
-        if file_id is None or not isinstance(file_id, int):
+        if key_id not in valid_data is None or not isinstance(
+            valid_data.get(key_id), int
+        ):
             raise InvalidIdException()
 
-        if language not in settings.LANGUAGE:
+        if key_language not in valid_data or valid_data.get(key_language) not in settings.LANGUAGE:
             raise InvalidDataException()
 
         return func(self, request)

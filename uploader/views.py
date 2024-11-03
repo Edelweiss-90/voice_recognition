@@ -34,9 +34,11 @@ class UploaderViews(BaseViews):
         file = request.FILES.get('file')
 
         file_data = upload_file(file)
-        self.__model.objects.create(user_id=request.user.id, **file_data)
+        file = self.__model.objects.create(
+            user_id=request.user.id, **file_data
+        )
 
-        return self._response_success('upload')
+        return self._response_success(file.id)
 
     @method_decorator(require_GET)
     @method_decorator(login_required)
