@@ -13,6 +13,7 @@ class UserViewsTests(TestCase):
         cls.create_url = reverse('create')
         cls.login_url = reverse('login')
         cls.logout_url = reverse('logout')
+        cls.check_url = reverse('check')
 
         cls.user_data = {
             'username': 'Tester',
@@ -25,8 +26,11 @@ class UserViewsTests(TestCase):
         }
 
         cls.invalid_user_data = {
-            'long_login': {'username': 'tester_name_user_long', 'password': '123'},
-            'long_pass': {'username': 'tester', 'password': 'tester_name_user_long'},
+            'long_login': {
+                'username': 'tester_name_user_long', 'password': '123'},
+            'long_pass': {
+                'username': 'tester', 
+                'password': 'tester_name_user_long'},
             'empty_login': {'username': '', 'password': '123'},
             'empty_pass': {'username': 'tester', 'password': ''},
             'wrong_type_login': {'username': 1, 'password': '123'},
@@ -42,6 +46,11 @@ class UserViewsTests(TestCase):
             url,
             data=json.dumps(data),
             content_type=self.content_type
+        )
+
+    def get_request(self, url):
+        return self.client.get(
+            url
         )
 
     def test_create_user(self):
@@ -73,3 +82,12 @@ class UserViewsTests(TestCase):
     def test_user_logout_not_found(self):
         response = self.post_request(self.logout_url, self.user_data)
         self.assertEqual(response.status_code, 302)
+
+    def test_user_check(self):
+        self.client.force_login(self.user)
+        response = self.get_request(self.check_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_not_login(self):
+        response = self.get_request(self.logout_url)
+        self.assertEqual(response.status_code, 405)

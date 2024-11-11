@@ -17,17 +17,28 @@ def check_req_user_data(data):
     return type(data) is not str or len(data) > max_length or len(data) < min_length
 
 
+def check_request_body(request):
+    if not request.body:
+        raise InvalidDataException()
+
+
 def user_validator(func):
     def wrapper(self, request):
+        check_request_body(request)
+
         valid_data = self._loads_data(request)
 
-        username = valid_data['username']
-        password = valid_data['password']
+        key_username = 'username'
+        key_password = 'password'
 
-        if check_req_user_data(username):
+        if key_username in valid_data and check_req_user_data(
+            valid_data['username']
+        ):
             raise InvalidDataException()
 
-        if check_req_user_data(password):
+        if key_password in valid_data and check_req_user_data(
+            valid_data['password']
+        ):
             raise InvalidDataException()
 
         return func(self, request)
@@ -37,6 +48,8 @@ def user_validator(func):
 
 def recognize_param_validator(func):
     def wrapper(self, request):
+        check_request_body(request)
+
         valid_data = self._loads_data(request)
 
         key_id = 'file_id'
@@ -47,7 +60,9 @@ def recognize_param_validator(func):
         ):
             raise InvalidIdException()
 
-        if key_language not in valid_data or valid_data.get(key_language) not in settings.LANGUAGE:
+        if key_language not in valid_data or valid_data.get(
+            key_language
+        ) not in settings.LANGUAGE:
             raise InvalidDataException()
 
         return func(self, request)
@@ -57,6 +72,7 @@ def recognize_param_validator(func):
 
 def id_validator(func):
     def wrapper(self, request, id):
+        print('TESTER')
         if id.is_integer():
             return func(self, request, int(id))
 

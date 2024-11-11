@@ -88,7 +88,8 @@ class RecognizerViews(BaseViews):
         self._check_exist(self.__file, params)
 
         records = self.__model.objects.filter(
-            file_id=id
+            file_id=id,
+            deleted=DeletedStatuses.NOT_DELETED.value,
         )
 
         return self._response_success([

@@ -15,8 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import include, path
+from template import FrontendView
 
 urlpatterns = [
+    path('', FrontendView.as_view(), name='react_app'),  # Главная страница
     path('user/', include('user.urls')),
     path('uploader/', include('uploader.urls')),
     path('recognizer/', include('recognizer.urls')),

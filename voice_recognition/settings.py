@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 from dotenv import dotenv_values
 
@@ -23,7 +24,7 @@ UPLOAD_DIR = config['UPLOAD_DIR']
 
 TMP_WAV = config['TMP_WAV']
 
-EXTENSIONS = ('.mp3', '.m4a')
+EXTENSIONS = ('.mp3', '.m4a', '.wav')
 
 LANGUAGE = ('ru-RU', 'en-EN')
 
@@ -135,8 +136,31 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL = '/static/'
 
-STATIC_URL = 'static/'
+INDEX_PATH = os.path.join(BASE_DIR, 'frontend', 'index.html')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend', 'static'),
+]
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

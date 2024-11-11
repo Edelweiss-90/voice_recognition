@@ -1,4 +1,4 @@
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -39,6 +39,12 @@ class UserViews(BaseViews):
 
         user = UserViews.__model.objects.create_user(**user)
         return self._response_success(f'user created with id: {user.id}')
+
+    @method_decorator(require_GET)
+    def check(self, request):
+        return self._response_success(
+            request.user.is_authenticated
+        )
 
     @method_decorator(require_POST)
     @handle_validation_errors
