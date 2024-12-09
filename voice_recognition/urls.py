@@ -14,12 +14,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import include, path
+from django.urls import include, path, re_path
 from template import FrontendView
 
 urlpatterns = [
-    path('', FrontendView.as_view(), name='react_app'),  # Главная страница
+    path('', FrontendView.as_view(), name='react_app'),
     path('user/', include('user.urls')),
     path('uploader/', include('uploader.urls')),
     path('recognizer/', include('recognizer.urls')),
+    re_path(r'^(?:.*)/?$', FrontendView.as_view(), name='template'),
 ]
